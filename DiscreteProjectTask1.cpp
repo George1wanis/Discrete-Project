@@ -1,5 +1,7 @@
 // Resources:   https://youtu.be/Wz85Hiwi5MY - Comp Sci in 5: Shunting Yard Algorithm
 //              https://youtu.be/bebqXO8H4eA - Comp Sci in 5: Post Fix Stack Evaluator
+//              https://youtu.be/KiB0vRi2wlc - Maps in C++ (std::map and std::unordered_map)
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -223,3 +225,4 @@ int main() {
     cout << "\nValid?        " << (valid ? "YES" : "FALSIFIABLE") << endl;
     return 0;
 }
+

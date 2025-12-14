@@ -1,94 +1,65 @@
-// Resources:   https://youtu.be/Wz85Hiwi5MY - Comp Sci in 5: Shunting Yard Algorithm
-//              https://youtu.be/bebqXO8H4eA - Comp Sci in 5: Post Fix Stack Evaluator
-//              https://youtu.be/KiB0vRi2wlc - Maps in C++ (std::map and std::unordered_map)
-
+// Resources:
+// https://youtu.be/Wz85Hiwi5MY - Comp Sci in 5: Shunting Yard Algorithm
+// https://youtu.be/bebqXO8H4eA - Comp Sci in 5: Post Fix Stack Evaluator
+// https://youtu.be/KiB0vRi2wlc - Maps in C++ (std::map and std::unordered_map)
+// https://youtu.be/unh6aK8WMwM - DIY Programming Language #1: The Shunting Yard Algorithm
 #include <iostream>
 #include <string>
 #include <vector>
 #include <stack>
 #include <map>
 #include <set>
-#include <limits>
-//This header provides information about the properties of fundamental data types,
-//like their minimum and maximum values.
-//It’s useful for writing code that needs to handle edge cases and ensure that values stay within safe ranges.
-
 using namespace std;
-
-// Operator precedence
-int prec(char op) {
-    if (op == '~') return 4;
-    if (op == '&') return 3;
-    if (op == '|') return 2;
-    if (op == '>') return 1;
+int precedence(char op) { // Operator precedence أسبقية
+    if (op == '~') return 5;
+    if (op == '&') return 4;
+    if (op == '|') return 3;
+    if (op == '>') return 2;
+    if (op == '=') return 1;
     return 0;
 }
-
-// The Shunting Yard algorithm is a method developed by Edsger Dijkstra for parsing mathematical expressions. It’s used to convert infix expressions (the standard notation we write, like (3 + 4) * 5) into postfix notation (also called Reverse Polish Notation, like 3 4 + 5 *).
-
-// Infix notation: This is the common format, like 3 + 4 * 5.
-// Postfix notation: The operators come after their operands, like 3 4 5 * +
-// When you put them together, "postfix" literally means "placed after." In the context of expressions,
-// it means that the operators come after their operands, as opposed to infix notation, where the operator is placed between operands.
-
-// Postfix notation, also known as Reverse Polish Notation (RPN),
-// was introduced and popularized by the Polish mathematician Jan Łukasiewicz in the 1920s.
-// He developed it as a way to eliminate the need for parentheses and to simplify the parsing of expressions.
-
-// So, while Jan Łukasiewicz was indeed a significant figure in logic and mathematics,
-// he’s more closely associated with prefix notation.
-// The concept of postfix notation and its popularization in computing is more tied to the development of early computing and the work of others like Charles Hamblin and the creators of early calculators.
-
-
-
-string toPostfix(const string &infix) { // Convert infix expression into postfix (Shunting Yard)
-    // the infix is passed by refrence, The const keyword is used to ensure that the function doesn’t modify the parameter it receives.
-    // When a parameter is passed as a const reference, the compiler can optimize the code more effectively, knowing that it doesn’t need to worry about unintended side effects.
-    // The size() method of a std::string actually returns a value of type std::string::size_type, which is an unsigned integral type. It’s usually defined as unsigned int
-    // The isalpha() function is a standard C++ library function that checks whether a given character is an alphabetic letter (either uppercase or lowercase).
-    stack<char> st;
-    string output = "";
-    for (int i = 0; i < (int)infix.size(); i++) {
+string toPostfix(const string &infix) {
+    stack<char> st; // this is our holding stack
+    string output = ""; // this is the main string
+    for (int i = 0; i < (int)infix.size(); i++) { //loops on each charachter in the given infix proposition
         char c = infix[i];
-
         if (isalpha((unsigned char)c)) {
-            output += c;
+            output += c; // character added to the main string
         }
-        else if (c == '(') {
+        else if (c == '(') { // added to the holding stack
             st.push(c);
         }
         else if (c == ')') {
             while (!st.empty() && st.top() != '(') {
-                output += st.top();
+                output += st.top(); // stack flushing
                 st.pop();
             }
-            if (!st.empty()) st.pop(); // remove '('
+            if (!st.empty()) st.pop(); // remove '(', But Why check !st.empty() anyway? Because this is defensive programming. What happens if the user writes: A & B)
         }
         else { // operator
-            while (!st.empty() && prec(st.top()) >= prec(c)) {
-                output += st.top();
+            while (!st.empty() && precedence(st.top()) >= precedence(c)) {
+                output += st.top(); // stack flushing
                 st.pop();
             }
             st.push(c);
         }
     }
-    while (!st.empty()) {
+    while (!st.empty()) { // stack flushing after finishing the main input string
         output += st.top();
         st.pop();
     }
     return output;
 }
-
 int evalPostfix(const string &postfix, map<char,int>& values) { // Evaluate postfix expression for a specific truth-table row
     stack<int> st;
-
     for (char c : postfix) {
         if (isalpha((unsigned char)c)) {
             st.push(values[c]);
         }
         else if (c == '~') {
             if (st.empty()) return 0; // malformed, but safe-guard
-            int x = st.top(); st.pop();
+            int x = st.top();
+            st.pop();
             st.push(!x);
         }
         else {
@@ -99,14 +70,13 @@ int evalPostfix(const string &postfix, map<char,int>& values) { // Evaluate post
             if (c == '&') st.push(a && b);
             else if (c == '|') st.push(a || b);
             else if (c == '>') st.push((!a) || b);
+            else if (c == '=') st.push(((!a) || b)&&((!b) || a));
             else st.push(0); // unknown operator
         }
     }
-
     if (st.empty()) return 0;
     return st.top();
 }
-
 vector<char> extractVariables(const vector<string> &premises, const string &conclusion) { // Extract variable letters from strings (in order of first occurrence)
     vector<char> vars;
     set<char> seen;
@@ -119,110 +89,78 @@ vector<char> extractVariables(const vector<string> &premises, const string &conc
             }
         }
     };
-
     for (auto &p : premises)
         for (char c : p) consider(c); // Each time consider(c) appears, the lambda runs with the current character c. So if a premise has 5 characters, the lambda is called 5 times for that premise.
     for (char c : conclusion) consider(c);
-
     return vars; // [X, Y, Z]
 }
 
 int main() {
     cout << "Hello, I'm George Wanis. Welcome to my humble program!\n";
-    cout << "How many variables are we dealing with? ";
-    int number_of_variables;
-    cin >> number_of_variables;
-    //cin.ignore(n, c) means: skip up to n characters OR stop earlier if you find character c, This calls the static function max() inside the template.
-    //If you're solely using cin >> and not mixing it with getline() or other input methods, then you typically won't have to worry about leftover newline characters causing issues.
-    //The main reason to use cin.ignore() is when you mix different types of input methods, like when you use cin >> and then getline() afterward.
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    // Ask user for premises + conclusion
     int premiseCount;
     cout << "How many premises? ";
-    cin >> premiseCount;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin >> premiseCount; // Ask user for premises + conclusion
     vector<string> premises(premiseCount);
     string conclusion;
-    cout << "Enter premises (use letters for variables, e.g. F|T or (F&~G)>H ):\n";
+    cout << "Enter premises (use letters for variables, e.g. F|T or (F&~G)>H ):" << endl;
     for (int i = 0; i < premiseCount; i++) {
-        getline(cin, premises[i]);
+        cin >> premises[i];
         if (premises[i].empty()) { i--; continue; } // ensure non-empty
-    }   // when trying to put a white space as a premise it acted in a wird way and said that the argument was unsatisfiably although it was! ⚠️
-        // what pieces of the code jumps over "/n"s?
-    cout << "Enter conclusion:\n";
-    getline(cin, conclusion);
-    while (conclusion.empty()) getline(cin, conclusion);
-
+    }
+    cout << "Enter conclusion:" << endl;
+    cin >> conclusion;
+    while (conclusion.empty()) cin >> conclusion;
     // Detect variables actually used
     vector<char> vars = extractVariables(premises, conclusion);
-    if ((int)vars.size() != number_of_variables) {
-        cout << "[Notice] Detected " << vars.size() << " distinct variable(s) in the formulas: ";
-        for (char v : vars) cout << v << ' ';
-        cout << "\nAdjusting number_of_variables to " << vars.size() << ".\n";
-        number_of_variables = (int)vars.size();
-    }
-
-    // Generate truth table with columns corresponding to vars[0], vars[1], ...
-    int rows = 1 << number_of_variables;
-    vector<vector<int>> table(rows, vector<int>(number_of_variables));
+    int number_of_variables;
+    number_of_variables = (int)vars.size();
+    cout << "[Notice] Detected " << number_of_variables << " distinct variable(s) in the formulas: ";
+    for (char v : vars) cout << v << ' ';
+    int rows = 1 << number_of_variables; // rows = 2^n number_of_variables
+    vector<vector<int>> table(rows, vector<int>(number_of_variables)); // Generate truth table with columns corresponding to vars[0], vars[1], ...
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < number_of_variables; j++) {
-            table[i][j] = (i >> (number_of_variables - j - 1)) & 1;
+            table[i][j] = (i >> (number_of_variables - j - 1)) & 1; // bit extraction / bit masking
         }
     }
 //-----------------------------------------------------------------------------------------------------------------------
     // Convert all to postfix
     vector<string> premPost(premiseCount);
-    for (int i = 0; i < premiseCount; i++)
-        premPost[i] = toPostfix(premises[i]);
-
+    for (int i = 0; i < premiseCount; i++) premPost[i] = toPostfix(premises[i]); // if the user inputed the string "P>T" first, the program should assign premPost[0] to the string "PT>".
     string conclPost = toPostfix(conclusion);
-
     // Print Truth Table Header
-    cout << "\n\n=== FULL TRUTH TABLE ===\n";
+    cout << endl << endl << "=== FULL TRUTH TABLE ===" << endl;
     for (char v : vars) cout << v << " | ";
     for (int i = 0; i < premiseCount; i++) cout << "P" << i+1 << " ";
-    cout << "| Conclusion | Implication\n";
+    cout << "| Conclusion | Implication" << endl;
     // Separator line
     cout << string(number_of_variables * 2 + premiseCount * 3 + 12, '-') << "\n";
-
     // Evaluate rows & print table
-    bool sat = false;
+    bool satisfiable = false;
     bool valid = true;
-    for (int r = 0; r < rows; r++) {
-
+    for (int r = 0; r < rows; r++) { //loop on each row
         map<char,int> values;
-
-        // Map each detected variable to the corresponding table column
-        for (int c = 0; c < number_of_variables; c++)
+        for (int c = 0; c < number_of_variables; c++) // Map each detected variable to the corresponding table column
             values[ vars[c] ] = table[r][c];
-
         // Evaluate premises for this row
         vector<int> premVal(premiseCount);
         bool allPremTrue = true;
-
-        for (int i = 0; i < premiseCount; i++) {
+        for (int i = 0; i < premiseCount; i++) { //loops on the premises
             premVal[i] = evalPostfix(premPost[i], values);
             if (premVal[i] == 0) allPremTrue = false;
         }
 
-        int conclVal = evalPostfix(conclPost, values);
-
-        // Implication value (premises > conclusion)
-        int implication = (!allPremTrue) || conclVal;
-
-        // Print variables
-        for (char v : vars) cout << values[v] << " ";
+        int conclusionValue = evalPostfix(conclPost, values);
+        int implication = (!allPremTrue) || conclusionValue; // Implication value (premises > conclusion) “If all premises are true, then the conclusion must be true.” تتابع
+        for (char v : vars) cout << values[v] << " "; // Print variables
         cout << "| ";
-        // Print premises
-        for (int i = 0; i < premiseCount; i++) cout << premVal[i] << " ";
-        cout << "| " << conclVal << " | " << implication << endl;
+        for (int i = 0; i < premiseCount; i++) cout << premVal[i] << " "; // Print premises
+        cout << "| " << conclusionValue << " | " << implication << endl;
 
-        if (allPremTrue) sat = true; // Check satisfiability
-        if (allPremTrue && conclVal == 0) valid = false; // Check validity
+        if (allPremTrue && conclusionValue == 1) satisfiable = true; // Check satisfiability for each row, Why you do check the conclusion here? This is very important: Satisfiability cares to show if the argument was satisfiable at least once.
+        if (allPremTrue && conclusionValue == 0) valid = false; // Check validity for each row. if a row is found to be not valid then the whole argument isn't valid.
     }
-    cout << "\nSatisfiable?  " << (sat ? "YES" : "NO");
+    cout << "\nSatisfiable?  " << (satisfiable ? "YES" : "NO");
     cout << "\nValid?        " << (valid ? "YES" : "FALSIFIABLE") << endl;
     return 0;
 }
-

@@ -94,7 +94,6 @@ vector<char> extractVariables(const vector<string> &premises, const string &conc
     for (char c : conclusion) consider(c);
     return vars; // [X, Y, Z]
 }
-
 int main() {
     cout << "Hello, I'm George Wanis. Welcome to my humble program!\n";
     int premiseCount;
@@ -123,7 +122,6 @@ int main() {
             table[i][j] = (i >> (number_of_variables - j - 1)) & 1; // bit extraction / bit masking
         }
     }
-//-----------------------------------------------------------------------------------------------------------------------
     // Convert all to postfix
     vector<string> premPost(premiseCount);
     for (int i = 0; i < premiseCount; i++) premPost[i] = toPostfix(premises[i]); // if the user inputed the string "P>T" first, the program should assign premPost[0] to the string "PT>".
@@ -149,14 +147,12 @@ int main() {
             premVal[i] = evalPostfix(premPost[i], values);
             if (premVal[i] == 0) allPremTrue = false;
         }
-
         int conclusionValue = evalPostfix(conclPost, values);
         int implication = (!allPremTrue) || conclusionValue; // Implication value (premises > conclusion) “If all premises are true, then the conclusion must be true.” تتابع
         for (char v : vars) cout << values[v] << " "; // Print variables
         cout << "| ";
         for (int i = 0; i < premiseCount; i++) cout << premVal[i] << " "; // Print premises
         cout << "| " << conclusionValue << " | " << implication << endl;
-
         if (allPremTrue && conclusionValue == 1) satisfiable = true; // Check satisfiability for each row, Why you do check the conclusion here? This is very important: Satisfiability cares to show if the argument was satisfiable at least once.
         if (allPremTrue && conclusionValue == 0) valid = false; // Check validity for each row. if a row is found to be not valid then the whole argument isn't valid.
     }

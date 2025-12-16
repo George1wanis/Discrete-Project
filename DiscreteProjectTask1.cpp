@@ -11,6 +11,7 @@
 
 // Todo: 1. Change every cin>> to getline(), then loop over the input, and if the program finds any spaces, you should post an error
 //       2. Remove fancy dashed table header, ya lateef.
+//       3. Error Handling
 
 #include <iostream>
 #include <string>
@@ -170,5 +171,6 @@ int main() {
     cout << "\nValid?        " << (valid ? "YES" : "FALSIFIABLE") << endl;
     return 0;
 }
+
 
 

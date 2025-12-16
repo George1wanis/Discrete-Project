@@ -9,12 +9,16 @@
 //  O:PQ&MB&|
 //  S:
 
+// Todo: 1. Change every cin>> to getline(), then loop over the input, and if the program finds any spaces, you should post an error
+//       2. Remove fancy dashed table header, ya lateef.
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <stack>
 #include <map>
 #include <set>
+
 using namespace std;
 int precedence(char op) { // Operator precedence أسبقية
     if (op == '~') return 5;
@@ -166,4 +170,5 @@ int main() {
     cout << "\nValid?        " << (valid ? "YES" : "FALSIFIABLE") << endl;
     return 0;
 }
+
 

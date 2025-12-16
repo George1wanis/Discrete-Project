@@ -3,6 +3,12 @@
 // https://youtu.be/bebqXO8H4eA - Comp Sci in 5: Post Fix Stack Evaluator
 // https://youtu.be/KiB0vRi2wlc - Maps in C++ (std::map and std::unordered_map)
 // https://youtu.be/unh6aK8WMwM - DIY Programming Language #1: The Shunting Yard Algorithm
+
+// Example to show the professor:
+// (P&Q|(M&B))
+//  O:PQ&MB&|
+//  S:
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -160,3 +166,4 @@ int main() {
     cout << "\nValid?        " << (valid ? "YES" : "FALSIFIABLE") << endl;
     return 0;
 }
+

@@ -9,7 +9,7 @@
 //  O:PQ&MB&|
 //  S:
 
-// Todo: 1. Change every cin>> to getline(), then loop over the input, and if the program finds any spaces, you should post an error
+// Todo: 1. Change every cin>> to getline(),✅ then loop over the input, and if the program finds any spaces, you should ignore them. ✅
 //       2. Remove fancy dashed table header, ya lateef.
 //       3. Error Handling
 
@@ -171,6 +171,7 @@ int main() {
     cout << "\nValid?        " << (valid ? "YES" : "FALSIFIABLE") << endl;
     return 0;
 }
+
 
 
 

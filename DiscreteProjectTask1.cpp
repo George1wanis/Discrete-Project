@@ -60,7 +60,7 @@ string toPostfix(const string &infix) { // 3+4 //34+
                 output += st.back();
                 st.pop_back();
             }
-            if (!st.empty()) st.pop_back(); // remove '(', But Why check !st.empty() anyway? Because this is defensive programming. What happens if the user writes: A & B)
+            if (!st.empty()) st.pop_back(); // remove '('
         }
         else { // operator
             while (!st.empty() && precedence(st.back()) >= precedence(c)) {

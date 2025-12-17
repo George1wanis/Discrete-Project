@@ -1,0 +1,238 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <string>
+#include <cctype>
+ 
+using namespace std;
+ 
+// Global variable to track how many times we divide by 2 in Stein's Algorithm
+// This is used to reconstruct the final result: GCD * 2^divisionCounter
+long long divisionCounter=0;
+ 
+long long getDifferentParitySteinAlgorithm(long long a, long long b);
+long long getBothEvenGcdSteinAlgorithm(long long a, long long b);
+bool checkEven(long long num);
+long long getBothOddGcdSteinAlgorithm(long long a, long long b);
+long long getDifferentParitySteinAlgorithm(long long a, long long b);
+long long finalStep(long long a);
+long long oddEvenCheck(long long a, long long b);
+void printAnswer(long long euclidans, long long steinAns);
+void gcdVectorCalculation(vector<long long>num,long long loopCount);
+ 
+ 
+// Implementation of the standard Euclidean Algorithm
+// Logic: GCD(a, b) = GCD(b, a % b) until b is 0
+long long getGcdEuclideanAlgorithm( long long a , long long b){
+    // Base case: if b is 0, a is the GCD
+    if (b== 0) return a;
+ 
+    long long smaller = min(a,b);
+    long long larger =  max (a,b);
+ 
+    // Calculate quotient and remainder
+    long long quotient= larger/smaller;
+    long long remainder= larger%smaller;
+ 
+    // If remainder is 0, the smaller number is the GCD
+    if (remainder==0){
+        return smaller;
+    }
+ 
+    // Recursive step: call function with smaller number and remainder
+    return getGcdEuclideanAlgorithm(smaller,remainder);
+}
+ 
+// Stein's Algorithm Case 1: Both numbers are even
+// Logic: GCD(2a, 2b) = 2 * GCD(a, b)
+long long getBothEvenGcdSteinAlgorithm(long long a, long long b){
+    // While both are even, divide by 2 and increment the counter
+    while(a%2==0 && b%2==0){
+        a= a/2;
+        b=b/2;
+        divisionCounter++; // Track factor of 2 to multiply back later
+    }
+    // Once one becomes odd, move to the parity check
+    return getDifferentParitySteinAlgorithm(a,b);
+}
+ 
+//  function to check if a number is even
+bool checkEven(long long num){
+    if (num%2==0) return 1;
+    else return 0;
+}
+ 
+// Stein's Algorithm Case 2: Both numbers are odd
+// Logic: GCD(a, b) = GCD(|a-b|/2, min(a, b))
+long long getBothOddGcdSteinAlgorithm(long long a, long long b){
+    // Ensure 'a' is the smaller number and 'b' is the larger (or vice versa based on swap)
+    // Standard approach: GCD(a, b) = GCD((a-b)/2, b)
+    if(a>b){
+        long long temp=a;
+        a=b;
+        b=temp;
+    }
+ 
+    // Standard Stein's step: subtract smaller from larger
+    b=b-a;
+ 
+    // If b is not zero, continue recursion
+    if(b!=0){
+        return getDifferentParitySteinAlgorithm(a,b);
+    }
+ 
+    // If b is zero, we found the odd part of the GCD, now apply the 2^k factor
+    return finalStep(a);
+}
+ 
+// Stein's Algorithm Case 3: One even, one odd
+// Logic: GCD(2a, b) = GCD(a, b) where b is odd
+long long getDifferentParitySteinAlgorithm(long long a, long long b){
+    // If a is even, divide by 2 until it is odd
+    if (checkEven(a)){
+        while(a%2 ==0){
+            a=a/2;
+        }
+    }
+    // If b is even, divide by 2 until it is odd
+    if (checkEven(b)){
+        while(b%2 ==0){
+            b=b/2;
+        }
+    }
+    // Now both are odd, proceed to odd-handling function
+    return getBothOddGcdSteinAlgorithm(a,b);
+}
+ 
+// Final calculation for Stein's Algorithm
+// Multiplies the result by 2^(divisionCounter) to restore common factors of 2
+long long finalStep(long long a){
+    return((a*(pow(2,(divisionCounter)))));
+}
+ 
+// Output helper function
+void printAnswer(long long euclidAns, long long steinAns){
+    cout<<"Answer from Euclid Algorithm is "<<" "<<euclidAns<<"\n";
+    cout<<"Answer from Stein Algorithm is "<<" "<<steinAns<<"\n";
+}
+ 
+// The "Dispatcher" function for Stein's Algorithm
+// Determines the state (Even/Even, Odd/Odd, Mixed) and calls the correct function
+long long oddEvenCheck(long long a, long long b){
+    divisionCounter=0; // Reset counter for new calculation
+ 
+    // Base cases
+    if (a==0) return b;
+    if (b==0) return a;
+ 
+    // Pass to appropriate handler based on parity
+    if(a%2==0 && b%2 ==0 ) return getBothEvenGcdSteinAlgorithm(a,b);
+    if(a%2!=0 && b%2 !=0 ) return getBothOddGcdSteinAlgorithm(a,b);
+    if ((a%2==0 && b%2 !=0) ||(a%2!=0 && b%2 ==0)) return getDifferentParitySteinAlgorithm(a,b);
+}
+ 
+// Validates that the input string contains only digits (integers)
+bool validateInput(string input){
+    if (input.empty()) return 0;//Check if the input is empty (user just pressed Enter)
+    long long startIndex = 0;
+    //Check for negative sign at the very start
+    if (input[0] == '-') {
+        // If the input is JUST "-", it's invalid
+        if (input.length() == 1) return 0;
+        // Start checking digits from the next character
+        startIndex = 1;
+    }
+    for (long long i = startIndex; i < input.length(); i++) {
+        // If a char is not a digit or is a space, return false
+        //If the input is negative it will contain a '-' sign which is not a digit so it will also output an error but I handled it above
+ 
+        if (!isdigit(input[i])|| input[i]==' '  ) {
+            return 0;
+        }
+    }
+    return 1;
+}
+ 
+// Handles user input for N numbers
+void vectorInput (long long numInputs){
+    vector<long long>gcdinputs(numInputs);
+    string input;
+ 
+    for(int i=1; i<=numInputs;i++){
+        cout<<"Enter Number" <<i<<"\n";
+        getline(cin, input);
+        // Keep asking until valid integer is entered
+        while(!validateInput(input)){
+            cout<<"Invalid number,enter Number" <<i<<"\n";
+            getline(cin, input);
+        }
+        // This converts -5 to 5, or -100 to 100
+        gcdinputs[i-1] = abs(stoll(input)); // Convert string to long long
+    }
+ 
+    // Process the vector to find GCD of all numbers
+    gcdVectorCalculation(gcdinputs,numInputs);
+}
+ 
+// Compares results and prints match/mismatch message
+void compareSteinWithEuclid(long long euclidRes,long long steinRes){
+    printAnswer(euclidRes,steinRes);
+ 
+    if (euclidRes==steinRes){
+        cout<<"Result from Euclid algorithm and Stein algorithm matches"<<"\n";
+    }
+    else { cout<<"Result from Euclid algorithm and Stein algorithm does not match"<<"\n";}
+}
+ 
+// Calculates GCD of a list of numbers using both algorithms
+// Logic: GCD(a, b, c) = GCD(GCD(a, b), c)
+void gcdVectorCalculation(vector<long long>num,long long loopCount){
+    // Create copies of the input vector for each algorithm
+    vector<long long>gcdEuclid(loopCount)   ;
+    vector<long long>gcdStein(loopCount);
+    long long euclidResult=0;
+    long long steinResult=0;
+ 
+    for(long long i=0;i<loopCount;i++){
+        gcdEuclid[i]=num[i];
+        gcdStein[i]=num[i];
+    }
+ 
+    // Process list using Euclidean Algorithm
+    // Takes first two elements, finds GCD, replaces them with result after removing the first two elements
+    while (gcdEuclid.size()>1){
+        euclidResult=getGcdEuclideanAlgorithm(gcdEuclid[0],gcdEuclid[1]);
+        gcdEuclid.erase(gcdEuclid.begin()); // Remove 1st element
+        gcdEuclid.erase(gcdEuclid.begin()); // Remove 2nd element (now new 1st)
+        gcdEuclid.insert(gcdEuclid.begin(),euclidResult); // Insert GCD at start
+    }
+ 
+    // Process list using Stein's Algorithm
+    // Same reduction logic as above
+    while (gcdStein.size()>1){
+        steinResult=oddEvenCheck(gcdStein[0],gcdStein[1]);
+        gcdStein.erase(gcdStein.begin());
+        gcdStein.erase(gcdStein.begin());
+        gcdStein.insert(gcdStein.begin(),steinResult);
+    }
+ 
+    // Compare the final single element remaining in both vectors
+    compareSteinWithEuclid(gcdEuclid[0],gcdStein[0]);
+}
+ 
+ 
+int main(){
+    string input;
+    cout<<"How many numbers you want to calculate the GCD for?"<<"\n";
+    getline(cin, input);
+ 
+    // Validate that the count is an integer and there are no spaces or special characters
+    while (!validateInput(input)){
+        cout<<"Incorrect input, please input an integer without any spaces or special characters"<<"\n";
+        getline(cin, input);
+    }
+ 
+    // Start input process
+   vectorInput(abs(stoll(input)));
+}

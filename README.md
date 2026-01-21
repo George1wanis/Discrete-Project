@@ -33,10 +33,12 @@ The project was inspired and supported by the following tutorials:
 ## Example Problem
 
 Example scenario assigned to the team:
+
+```
 The children are playing Football or Tennis.
 If they are watching TV or playing Tennis, then they are not playing Football.
 Therefore, they are not playing Football or they are not watching TV.
-
+```
 
 - Premises in logical form:
   1. F | T  
@@ -79,40 +81,48 @@ The program contains the following main functions:
 
 1. Compile the program:
 
-bash
+```bash
 g++ -o logic_evaluator main.cpp
+```
 
-Run the executable:
+2. Run the executable:
 
+```bash
 ./logic_evaluator
+```
 
-
-Follow the prompts:
-
-Enter the number of premises.
-
-Enter each premise using logical operators (~, &, |, >, =).
-
-Enter the conclusion.
+3. Follow the prompts:
+- Enter the number of premises.
+- Enter each premise using logical operators (`~`, `&`, `|`, `>`, `=`).
+- Enter the conclusion.
 
 The program will output:
+- The truth table with premises, conclusion, and implication results.  
+- Whether the conclusion is satisfiable or valid.
 
-The truth table with premises, conclusion, and implication results.
+---
 
-Whether the conclusion is satisfiable or valid.
+## Notes
 
-Notes
+- Malformed expressions will trigger an error, and evaluation will stop.  
+- Variables are automatically detected from the input expressions.  
+- Supports complex logical statements with multiple operators and parentheses.
 
-Malformed expressions will trigger an error, and evaluation will stop.
+---
 
-Variables are automatically detected from the input expressions.
+## Example Output
 
-Supports complex logical statements with multiple operators and parentheses.
-
-Example Output
+```
 Variables the user did input: F T V
 F T V | P1 P2 | C | Imp
 0 0 0 | 0 0 | 1 | 1
 ...
 Satisfiable? YES
 Valid?       FALSIFIABLE
+```
+
+---
+
+## License
+
+This project is for educational purposes as part of a university assignment.
